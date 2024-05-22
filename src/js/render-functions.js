@@ -1,5 +1,5 @@
-export const createMarkup = arrSearchPhotos => {
-  return arrSearchPhotos
+export const createMarkup = arr => {
+  return arr
     .map(
       ({
         webformatURL,
