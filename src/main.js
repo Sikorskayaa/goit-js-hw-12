@@ -1,110 +1,95 @@
-import axios from 'axios';
-import SimpleLightbox from "simplelightbox";
-import "simplelightbox/dist/simple-lightbox.min.css";
-import iziToast from "izitoast";
-import "izitoast/dist/css/iziToast.min.css";
 
-// import { request } from "./js/pixabi-api";
-import { createMarkup } from "./js/render-functions";
+import iziToast from 'izitoast';
+import 'izitoast/dist/css/iziToast.min.css';
+import SimpleLightbox from 'simplelightbox';
+import 'simplelightbox/dist/simple-lightbox.min.css';
 
-const form = document.querySelector('.submit-form');
-const list = document.querySelector('.gallery');
-const loadBtn = document.querySelector('.js-load-btn')
-const loading = document.querySelector('.js-loading')
+import { createMarkup} from './js/render-functions';
+import { request } from './js/pixabi-api';
 
-form.addEventListener('submit', onSubmit);
-loadBtn.addEventListener('click', onLoad)
+const form = document.querySelector('.js-search-form');
+const list = document.querySelector('.js-search-list');
+const loader = document.querySelector('.js-loader');
+const loaderMore = document.querySelector('.js-loader-more');
+const searchMore = document.querySelector('.js-search-more');
 
-let inputValue;
-let currentPage = 1;
-let perPage = 20;
+let page = 1;
+let totalPage = 1;
+let query = '';
 
-function onLoad() { 
-    currentPage += 1;
-    request(inputValue)
-      .then(data => {
-              list.insertAdjacentHTML(`beforeend`,createMarkup(data.hits))
-              init();
-              const card = document.querySelector(`.gallery-item`).getBoundingClientRect().height;
-        window.scrollBy(
-          {
-                  top: card * 2,
-                  behavior: `smooth`
-          });
-                    })
-          .catch(err => console.log(err))
-     
+form.addEventListener('submit', async event => {
+  event.preventDefault();
+
+  query = form.elements.forSearsh.value.trim();
+  if (!query) return;
+  if (searchMore.classList.contains('is-active')) {
+   searchMore.classList.remove('is-active');
   }
+  list.innerHTML = '';
+  loader.classList.add('is-active');
+  page = 1;
 
-function onSubmit(evt) {
-    evt.preventDefault();
-    
-    loading.innerHTML = `<span class="loader"></span>`;
-    if (evt.currentTarget.elements.search.value !== inputValue) {
-        list.innerHTML = ``;
-        currentPage = 1;
-      }
-      inputValue = evt.currentTarget.elements.search.value;
-
-    if(inputValue.length === 0){
-        return
+  try {
+    const { data } = await request(query, page);
+    if (!data.total) {
+      loader.classList.remove('is-active');
+      iziToast.error({
+        position: 'topRight',
+        message:
+          'Sorry, there are no images matching your search query. Please try again!',
+      });
+      form.reset();
+      return;
     }
 
-    request(inputValue)
-        .then(data => {
-            if (data.hits.length === 0){
-                 iziToast.show({
-                    message: ' Sorry, there are no images matching your search query. Please try again!',
-                    color: '#EF4040',
-                    position: 'topRight',
-                    messageColor: 'white',
-                    messageSize: '5px',
-                    timeout: 2000,
-                    padding: '20px',
-                    gap: '8px',
-                    borderRadius: '4px'
-                 });
-                loading.innerHTML = ``;
-                loadBtn.classList.add(`search-btn-hidden`);
-                return;
-            }
-            loading.innerHTML = ``;
-      list.insertAdjacentHTML(`beforeend`,createMarkup(data.hits))
-            init();
-            if (currentPage === 1) {
-                loadBtn.classList.remove(`search-btn-hidden`);
-              }
-              if (currentPage > data.totalHits / perPage) {
-                loadBtn.classList.add(`search-btn-hidden`);
-                iziToast.show(
-                {
-                  message: "We're sorry, but you've reached the end of search results."
-                }
-                );
-              }
-        })
-        .catch(err => console.log(err))
-    
-}
+    list.innerHTML = createMarkup(data.hits);
+   loader.classList.remove('is-active');
+    searchMore.classList.add('is-active');
 
+    if (data.totalHits < 15) {
+     searchMore.classList.remove('is-active');
+      iziToast.info({
+        position: 'topRight',
+        message: "We're sorry, but you've reached the end of search results.",
+      });
+    }
+    lightbox.refresh();
+  } catch (error) {
+    console.log(error);
+  }
+});
 
+searchMore.addEventListener('click', async () => {
+  loaderMore.classList.add('is-active-more');
+  searchMore.classList.remove('is-active');
 
-export async function request(inputValue) {
-    const BASE_URL = 'https://pixabay.com/api/';
-    const API_KEY = '43859237-c6386bdcccc66f068a9509366'
+  try {
+    const { data } = await request(query, ++page);
+    list.insertAdjacentHTML('beforeend', createMarkup(data.hits));
 
-    const resp = await axios.get(`${BASE_URL}?key=${API_KEY}&q=${inputValue}&image_type=photo&orientation=horizontal&safesearch=true&per_page=${perPage}&page=${currentPage}`)
+    loaderMore.classList.remove('is-active-more');
+    searchMore.classList.add('is-active');
+    lightbox.refresh();
 
-     return resp.data
- 
-}
-
-
-
-function init() {
-    const instance = new SimpleLightbox('.gallery a', {
-        captionsDelay: 250,
-        captionPosition: "bottom",
+    window.scrollBy({
+      top: elSearchList.firstChild.getBoundingClientRect().height * 2,
+      behavior: 'smooth',
     });
-    instance.refresh();
-}
+
+    totalPage = Math.ceil(data.totalHits / 15);
+    if (totalPage === page) {
+     searchMore.classList.remove('is-active');
+      iziToast.info({
+        position: 'topRight',
+        message: "We're sorry, but you've reached the end of search results.",
+      });
+    }
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+const lightbox = new SimpleLightbox('.gallery-link', {
+  captionsData: 'alt',
+  captionDelay: 250,
+});

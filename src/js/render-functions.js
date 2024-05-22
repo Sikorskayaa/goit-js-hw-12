@@ -1,12 +1,40 @@
-export function createMarkup(arr) {
-    return arr.map( ({ downloads,webformatURL, largeImageURL, tags, likes, views, comments} ) => `
-    <a class="gallery-link" href="${largeImageURL}">
-    <img class="gallery-image" src="${webformatURL}" alt="${tags}"/>
-    <div class="gallery-list">
-    <div class="gallery-item"><b>Likes</b> <span>${likes}</span></div>
-    <div class="gallery-item"><b>Views</b> <span>${views}</span></div>
-    <div class="gallery-item"><b>Comments</b> <span>${comments}</span></div>
-    <div class="gallery-item"><b>Downloads</b> <span>${downloads}</span></div>
-    </div></a>
-      `).join('')
-}
+export const createMarkup = arrSearchPhotos => {
+  return arrSearchPhotos
+    .map(
+      ({
+        webformatURL,
+        largeImageURL,
+        tags,
+        likes,
+        views,
+        comments,
+        downloads,
+      }) => {
+        return `<li class="list-item">
+                    <a class="gallery-link" href="${largeImageURL}">
+                      <img class="list-img" src="${webformatURL}" alt="${tags}" />
+                    </a>
+                    <ul>
+                      <li>
+                        <h3>Likes</h3>
+                        <p>${likes}</p>
+                      </li>
+                      <li>
+                        <h3>Views</h3>
+                        <p>${views}</p>
+                      </li>
+                      <li>
+                        <h3>Comments</h3>
+                        <p>${comments}</p>
+                      </li>
+                      <li>
+                        <h3>Downloads</h3>
+                        <p>${downloads}</p>
+                      </li>
+                    </ul>
+                  </li>`;
+      }
+    )
+    .join('');
+  
+};
