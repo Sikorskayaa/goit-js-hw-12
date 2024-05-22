@@ -4,31 +4,39 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vanilla App Template</title>
+    <title>Search Images</title>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/modern-normalize/2.0.0/modern-normalize.min.css"
+    />
     
     <script type="module" crossorigin src="/goit-js-hw-12/commonHelpers.js"></script>
-    <link rel="modulepreload" crossorigin href="/goit-js-hw-12/assets/vendor-f736e62a.js">
-    <link rel="stylesheet" href="/goit-js-hw-12/assets/vendor-4b066c51.css">
-    <link rel="stylesheet" href="/goit-js-hw-12/assets/index-1d89361c.css">
+    <link rel="modulepreload" crossorigin href="/goit-js-hw-12/assets/vendor-6e0bf343.js">
+    <link rel="stylesheet" href="/goit-js-hw-12/assets/vendor-1cd1f9d9.css">
+    <link rel="stylesheet" href="/goit-js-hw-12/assets/index-ee835e9b.css">
   </head>
   <body>
- 
-    <section class="container">
-      <form class="submit-form" action="submit">
-        <input
-          class="search-input"
-          type="search"
-          name="search"
-          placeholder="Search image..."
-        />
-        <button class="search-btn">Search</button>
-      </form>
-      <ul class="gallery"></ul>
-      <div class="js-loading container"></div>
-      <button class="js-load-btn search-btn search-btn-hidden" type="button">Load more</button>
+    <section class="search">
+      <div class="container">
+        <form class="search-form js-search-form">
+          <input
+            name="forSearsh"
+            type="text"
+            placeholder="Search images..."
+            required
+          />
+          <button type="submit">Search</button>
+        </form>
+        <span class="loader js-loader"></span>
+        <ul class="search-list js-search-list"></ul>
+        <div class="wrapper">
+          <span class="loader js-loader-more"></span>
+          <button class="search-more js-search-more" type="button">
+            Load more
+          </button>
+        </div>
+      </div>
     </section>
-    
-
     
   </body>
 </html>
