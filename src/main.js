@@ -31,7 +31,7 @@ form.addEventListener('submit', async event => {
 
   try {
     const { data } = await request(query, page);
-    if (!data.total) {
+    if (!data.totalHits) {
       loader.classList.remove('is-active');
       iziToast.error({
         position: 'topRight',
@@ -72,7 +72,7 @@ searchMore.addEventListener('click', async () => {
     lightbox.refresh();
 
     window.scrollBy({
-      top: elSearchList.firstChild.getBoundingClientRect().height * 2,
+      top: list.firstChild.getBoundingClientRect().height * 2,
       behavior: 'smooth',
     });
 
